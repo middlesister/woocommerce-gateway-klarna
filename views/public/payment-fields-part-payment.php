@@ -40,7 +40,7 @@ if ( 'NO' == $this->klarna_helper->get_klarna_country() ) { ?>
 				for="klarna_part_payment_pno"><?php echo esc_attr( __( 'Date of Birth', 'woocommerce-gateway-klarna' ) ); ?>
 				<span class="required">*</span></label>
 			<input type="text" class="input-text" id="klarna_part_payment_pno" name="klarna_part_payment_pno"
-			       placeholder="<?php _e( 'DDMMYYXXXXX', 'woocommerce-gateway-klarna' ); ?>" />
+			       placeholder="<?php _e( 'DDMMYYXXXXX', 'woocommerce-gateway-klarna' ); ?>"/>
 
 			<?php
 			// Button/form for getAddress
@@ -48,12 +48,8 @@ if ( 'NO' == $this->klarna_helper->get_klarna_country() ) { ?>
 			echo $data->get_address_button( $this->klarna_helper->get_klarna_country() );
 			?>
 		</p>
-
 	</fieldset>
-
-	<?php
-	// For countries other than NO do the old thing
-} else {
+<?php } else {
 	// Show klarna_warning_banner if NL
 	if ( $this->klarna_helper->get_klarna_country() == 'NL' ) {
 		echo '<p><img src="' . $this->klarna_wb_img_checkout . '" class="klarna-wb" style="max-width:100%;float:none;max-height:none"/></p>';
@@ -119,46 +115,96 @@ if ( 'NO' == $this->klarna_helper->get_klarna_country() ) { ?>
 
 			if ( $pclasses ) { ?>
 
-				<label for="<?php echo esc_attr( $klarna_select_pclass_element ); ?>">
-					<?php echo __( "Payment plan", 'woocommerce-gateway-klarna' ) ?> <span class="required">*</span>
-				</label>
+		<h4 style="margin-top: 0"><?php echo __( 'Ratenkauf', 'woocommerce-gateway-klarna' ) ?></h4>
 
-				<select id="<?php echo esc_attr( $klarna_select_pclass_element ); ?>"
-				        name="<?php echo esc_attr( $klarna_select_pclass_element ); ?>" class="woocommerce-select"
-				        style="max-width:100%;width:100% !important;">
+		<?php if ( 'DE' == $this->klarna_helper->get_klarna_country() || 'AT' == $this->klarna_helper->get_klarna_country() ) {
+			echo '<table>';
+			foreach ( $pclasses as $pclass ) { // Loop through the available PClasses stored in the file srv/pclasses.json
+				if ( in_array( $pclass->getType(), $pclass_type ) ) {
+					// Get monthly cost for current pclass
+					$monthly_cost = KlarnaCalc::calc_monthly_cost( $sum, $pclass, $flag );
 
-					<?php foreach ( $pclasses as $pclass ) { // Loop through the available PClasses stored in the file srv/pclasses.json
+					echo '<tr>';
+					echo '<td style="width:60%">Sollzinssatz</td>';
+					echo '<td>' . $pclass->getInterestRate() . '%</td>';
+					echo '<tr>';
 
-						if ( in_array( $pclass->getType(), $pclass_type ) ) {
-							// Get monthly cost for current pclass
-							$monthly_cost = KlarnaCalc::calc_monthly_cost( $sum, $pclass, $flag );
+					echo '<tr>';
+					echo '<td style="width:60%">Ratenkaufgebühr</td>';
+					echo '<td>' . $pclass->getInvoiceFee() . ' ' . $this->selected_currency . ' / Monat</td>';
+					echo '</tr>';
 
-							// Get total credit purchase cost for current pclass (only required in Norway)
-							$total_credit_purchase_cost = KlarnaCalc::total_credit_purchase_cost( $sum, $pclass, $flag );
+					echo '<tr>';
+					echo '<td style="width:60%">Monatliche Mindestrate für diesen Einkauf</td>';
+					echo '<td>' . $monthly_cost . ' ' . $this->selected_currency . ' / Monat</td>';
+					echo '</tr>';
 
-							// Check that Cart total is larger than min amount for current PClass
-							if ( $sum > $pclass->getMinAmount() ) {
-								echo '<option value="' . $pclass->getId() . '">';
-								if ( $pclass->getType() == 1 ) {
-									// If Account - Do not show startfee. This is always 0.
-									echo sprintf( __( '%s - %s %s/month - %s%s', 'woocommerce-gateway-klarna' ), $pclass->getDescription(), $monthly_cost, $this->selected_currency, $pclass->getInterestRate(), '%' );
-								} else {
-									// Sweden, Denmark, Finland, Germany & Netherlands - Don't show total cost
-									echo sprintf( __( '%s - %s %s/month - %s%s - Start %s', 'woocommerce-gateway-klarna' ), $pclass->getDescription(), $monthly_cost, $this->selected_currency, $pclass->getInterestRate(), '%', $pclass->getStartFee() );
-								}
-								echo '</option>';
+					// Get total credit purchase cost for current pclass (only required in Norway)
+					$total_credit_purchase_cost = KlarnaCalc::total_credit_purchase_cost( $sum, $pclass, $flag );
 
-							} // End if ($sum > $pclass->getMinAmount())
+					// Check that Cart total is larger than min amount for current PClass
+					/*
+					if ( $sum > $pclass->getMinAmount() ) {
+						echo '<option value="' . $pclass->getId() . '">';
+						if ( $pclass->getType() == 1 ) {
+							// If Account - Do not show startfee. This is always 0.
+							echo sprintf( __( '%s - %s %s/month - %s%s', 'woocommerce-gateway-klarna' ), $pclass->getDescription(), $monthly_cost, $this->selected_currency, $pclass->getInterestRate(), '%' );
+						} else {
+							// Sweden, Denmark, Finland, Germany & Netherlands - Don't show total cost
+							echo sprintf( __( '%s - %s %s/month - %s%s - Start %s', 'woocommerce-gateway-klarna' ), $pclass->getDescription(), $monthly_cost, $this->selected_currency, $pclass->getInterestRate(), '%', $pclass->getStartFee() );
+						}
+					} // End if ($sum > $pclass->getMinAmount())
+					*/
+				} // End PClass type check
+			} // End foreach
+			echo '</table>';
 
-						} // End PClass type check
+			echo '<p style="margin-bottom: 0.75em; font-size: 0.8em">VerfBgungsrahmen ab 199,99 € (abhDngig von der HEhe Ihrer EinkDufe), eektiver Jahreszins 18,07%*
+					und Gesamtbetrag 218, 57€* (*bei Ausnutzung des vollen VerfBgungsrahmens und RBckzahlung in 12
+					monatlichen Raten je 18,21 €).</p>
+					
+					<p style="margin-bottom: 0.75em; font-size: 0.8em">Hier nden Sie weitere Informationen, AGB mit Widerrufsbelehrung und Standardinformationen fBr
+					Verbraucherkredite.</p>
+					
+					<p style="margin-bottom: 0.75em; font-size: 0.8em">Obersteigt Ihr Einkauf mit Klarna Ratenkauf erstmals einen Betrag von 199,99 € erhalten Sie
+					von Klarna einen Ratenkaufvertrag mit der Bitte um Unterzeichnung zugesandt. Ihr Kauf gilt solange als
+					Rechnungskauf.</p>';
+		} else { ?>
 
-					} // End foreach
-					?>
-				</select>
+			<select id="<?php echo esc_attr( $klarna_select_pclass_element ); ?>"
+			        name="<?php echo esc_attr( $klarna_select_pclass_element ); ?>" class="woocommerce-select"
+			        style="max-width:100%;width:100% !important;">
 
-			<?php } else {
-				echo __( 'Klarna PClasses seem to be missing. Klarna Part Payment does not work.', 'woocommerce-gateway-klarna' );
-			} ?>
+				<?php foreach ( $pclasses as $pclass ) { // Loop through the available PClasses stored in the file srv/pclasses.json
+					if ( in_array( $pclass->getType(), $pclass_type ) ) {
+						// Get monthly cost for current pclass
+						$monthly_cost = KlarnaCalc::calc_monthly_cost( $sum, $pclass, $flag );
+
+						// Get total credit purchase cost for current pclass (only required in Norway)
+						$total_credit_purchase_cost = KlarnaCalc::total_credit_purchase_cost( $sum, $pclass, $flag );
+
+						// Check that Cart total is larger than min amount for current PClass
+						if ( $sum > $pclass->getMinAmount() ) {
+							echo '<option value="' . $pclass->getId() . '">';
+							if ( $pclass->getType() == 1 ) {
+								// If Account - Do not show startfee. This is always 0.
+								echo sprintf( __( '%s - %s %s/month - %s%s', 'woocommerce-gateway-klarna' ), $pclass->getDescription(), $monthly_cost, $this->selected_currency, $pclass->getInterestRate(), '%' );
+							} else {
+								// Sweden, Denmark, Finland, Germany & Netherlands - Don't show total cost
+								echo sprintf( __( '%s - %s %s/month - %s%s - Start %s', 'woocommerce-gateway-klarna' ), $pclass->getDescription(), $monthly_cost, $this->selected_currency, $pclass->getInterestRate(), '%', $pclass->getStartFee() );
+							}
+							echo '</option>';
+						} // End if ($sum > $pclass->getMinAmount())
+					} // End PClass type check
+				} // End foreach
+				?>
+			</select>
+
+		<?php } ?>
+
+		<?php } else {
+			echo __( 'Klarna PClasses seem to be missing. Klarna Part Payment does not work.', 'woocommerce-gateway-klarna' );
+		} ?>
 		</p>
 		<div class="clear"></div>
 
@@ -306,7 +352,8 @@ if ( 'NO' == $this->klarna_helper->get_klarna_country() ) { ?>
 					for="<?php echo esc_attr( $klarna_dob_element ); ?>"><?php echo __( 'Date of Birth', 'woocommerce-gateway-klarna' ) ?>
 					<span class="required">*</span></label>
 				<input type="text" class="input-text" id="<?php echo esc_attr( $klarna_dob_element ); ?>"
-				       name="<?php echo esc_attr( $klarna_dob_element ); ?>" placeholder="<?php _e( 'YYMMDD-XXXX', 'woocommerce-gateway-klarna' ); ?>" />
+				       name="<?php echo esc_attr( $klarna_dob_element ); ?>"
+				       placeholder="<?php _e( 'YYMMDD-XXXX', 'woocommerce-gateway-klarna' ); ?>"/>
 			<?php }
 			// Button/form for getAddress
 			$data = new WC_Klarna_Get_Address;
@@ -332,8 +379,9 @@ if ( 'NO' == $this->klarna_helper->get_klarna_country() ) { ?>
 		<?php if ( ( $this->klarna_helper->get_klarna_country() == 'DE' || $this->klarna_helper->get_klarna_country() == 'AT' ) && $this->de_consent_terms == 'yes' ) { // Consent terms for German & Austrian shops ?>
 			<p class="form-row form-row-wide">
 				<label for="klarna_part_payment_de_consent_terms">
-				<input type="checkbox" class="input-checkbox" value="yes" name="klarna_part_payment_de_consent_terms"  id="klarna_part_payment_de_consent_terms" />
-				<?php echo sprintf( __( 'Mit der Übermittlung der für die Abwicklung der gewählten Klarna Zahlungsmethode und einer Identitäts- und Bonitätsprüfung erforderlichen Daten an Klarna bin ich einverstanden. Meine <a href="%s" target="_blank">Einwilligung</a> kann ich jederzeit mit Wirkung für die Zukunft widerrufen. Es gelten die AGB des Händlers.', 'woocommerce-gateway-klarna' ), 'https://online.klarna.com/consent_de.yaws' ) ?>
+					<input type="checkbox" class="input-checkbox" value="yes"
+					       name="klarna_part_payment_de_consent_terms" id="klarna_part_payment_de_consent_terms"/>
+					<?php echo sprintf( __( 'Mit der Übermittlung der für die Abwicklung der gewählten Klarna Zahlungsmethode und einer Identitäts- und Bonitätsprüfung erforderlichen Daten an Klarna bin ich einverstanden. Meine <a href="%s" target="_blank">Einwilligung</a> kann ich jederzeit mit Wirkung für die Zukunft widerrufen. Es gelten die AGB des Händlers.', 'woocommerce-gateway-klarna' ), 'https://online.klarna.com/consent_de.yaws' ) ?>
 				</label>
 			</p>
 		<?php } ?>
