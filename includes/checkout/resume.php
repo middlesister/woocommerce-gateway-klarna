@@ -108,6 +108,7 @@ try {
 
 		// Merchant URIs
 		$push_uri_base = get_home_url() . '/wc-api/WC_Gateway_Klarna_Checkout/';
+		$order_key = get_post_meta( $local_order_id, '_order_key', true );
 		// REST
 		if ( $this->is_rest() ) {
 			$merchant_terms_uri        = $this->terms_url;
@@ -123,7 +124,8 @@ try {
 				'klarna_order'   => '{checkout.order.id}',
 				'sid'            => $local_order_id,
 				'order-received' => $local_order_id,
-				'thankyou'       => 'yes'
+				'thankyou'       => 'yes',
+				'key'            => $order_key
 			), $this->klarna_checkout_thanks_url );
 			$address_update_uri        = add_query_arg( array(
 				'address_update' => 'yes',
@@ -142,7 +144,8 @@ try {
 				'klarna_order'   => '{checkout.order.id}',
 				'sid'            => $local_order_id,
 				'order-received' => $local_order_id,
-				'thankyou'       => 'yes'
+				'thankyou'       => 'yes',
+				'key'            => $order_key
 			), $this->klarna_checkout_thanks_url );
 		}
 
@@ -154,7 +157,7 @@ try {
 				'confirmation'   => $merchant_confirmation_uri,
 				'push'           => $merchant_push_uri,
 			);
-			if ( 'yes' == $this->validate_stock ) {
+			if ( is_ssl() && 'yes' == $this->validate_stock ) {
 				$merchantUrls['validation'] = get_home_url() . '/wc-api/WC_Gateway_Klarna_Order_Validate/';
 			}
 			if ( is_ssl() ) {
@@ -166,7 +169,7 @@ try {
 			$update['merchant']['checkout_uri']     = $merchant_checkout_uri;
 			$update['merchant']['confirmation_uri'] = $merchant_confirmation_uri;
 			$update['merchant']['push_uri']         = $merchant_push_uri;
-			if ( 'yes' == $this->validate_stock ) {
+			if ( is_ssl() && 'yes' == $this->validate_stock ) {
 				$update['merchant']['validation_uri']   = get_home_url() . '/wc-api/WC_Gateway_Klarna_Order_Validate/';
 			}
 		}
