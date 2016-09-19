@@ -164,7 +164,7 @@ class Charset
                         $b1 = ($ii & 15);
                         $ii = ord($data[$nn + 1]);
                         $b2 = ($ii & 63);
-                        $ii = ord($data[$nn + 2]);
+                        // if ($data[$nn + 2]) $ii = ord($data[$nn + 2]);
                         $b3 = ($ii & 63);
                         $ii = ((($b1 * 64) + $b2) * 64) + $b3;
                         $ent = sprintf('&#%d;', $ii);

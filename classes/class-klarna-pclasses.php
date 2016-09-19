@@ -12,8 +12,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-use PhpXmlRpc\Helper\Charset;
-
 class WC_Gateway_Klarna_PClasses {
 
 	protected $pclasses;
@@ -45,7 +43,7 @@ class WC_Gateway_Klarna_PClasses {
 		if ( $pclasses_country_all ) {
 			foreach( $pclasses_country_all as $eid => $pclasses_country ) {
 				foreach ( $pclasses_country as $pclass ) {
-					if ( in_array( $pclass->getType(), $this->type ) ) { // Passed from parent file
+					if ( in_array( $pclass->type, $this->type ) ) { // Passed from parent file
 						$pclasses_country_type[] = $pclass;
 					}
 				}
@@ -86,11 +84,10 @@ class WC_Gateway_Klarna_PClasses {
 						$pclass_array = $pclass->toArray();
 						// Clean up array values
 						foreach ( $pclass_array as $pclass_key => $pclass_value ) {
-							if ( $pclass_value ) {
-								$pclass_array[ $pclass_key ] = Charset::instance()->encodeEntities( $pclass_value, 'UTF-8', 'ISO-8859-1' );
+							if ( is_string( $pclass_value ) ) {
+								$pclass_array[ $pclass_key ] = PhpXmlRpc\Helper\Charset::instance()->encodeEntities( $pclass_value, 'UTF-8', 'ISO-8859-1' );
 							}
 						}
-
 
 						$output[$eid][] = $pclass_array;
 					}
