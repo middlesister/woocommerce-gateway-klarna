@@ -36,14 +36,16 @@ class WC_Gateway_Klarna_PClasses {
 	 * @return array $pclasses Key value array of countries and their PClasses
 	 */
 	function get_pclasses_for_country_and_type() {
-		$pclasses_country_all  = $this->fetch_pclasses();
+		$pclasses_country_all  = $this->pclasses;
 		$pclasses_country_type = array();
 		unset( $pclasses_country_type );
 
 		if ( $pclasses_country_all ) {
-			foreach ( $pclasses_country_all as $pclass ) {
-				if ( in_array( $pclass->getType(), $this->type ) ) { // Passed from parent file
-					$pclasses_country_type[] = $pclass;
+			foreach( $pclasses_country_all as $eid => $pclasses_country ) {
+				foreach ( $pclasses_country as $pclass ) {
+					if ( in_array( $pclass->type, $this->type ) ) { // Passed from parent file
+						$pclasses_country_type[] = $pclass;
+					}
 				}
 			}
 		}
@@ -51,28 +53,6 @@ class WC_Gateway_Klarna_PClasses {
 		if ( ! empty( $pclasses_country_type ) ) {
 			return $pclasses_country_type;
 		}
-	}
-
-	/**
-	 * Displays available PClasses in admin settings page.
-	 *
-	 * @since 1.0.0
-	 */
-	function display_pclasses_for_country_and_type() {
-		$pclasses = $this->get_pclasses_for_country_and_type( $this->country, $this->type );
-		if ( $pclasses ) { ?>
-			<h5 style="margin-bottom:0.25em;"><?php echo $this->country; ?></h5>
-			<?php
-			$pclass_string = '';
-			foreach ( $pclasses as $pclass ) {
-				if ( in_array( $pclass->getType(), $this->type ) ) { // Passed from parent file
-					$pclass_string .= $pclass->getDescription() . ', ';
-				}
-			}
-			$pclass_string = substr( $pclass_string, 0, - 2 );
-			?>
-			<p style="margin-top:0;"><?php echo $pclass_string; ?></p>
-		<?php }
 	}
 
 	/**
@@ -110,16 +90,16 @@ class WC_Gateway_Klarna_PClasses {
 					}
 				}
 
-				$json_output = json_encode( $output );
+				// $json_output = json_encode( $output );
 
 				if ( count( $this->pclasses ) > 0 ) {
-					set_transient( 'klarna_pclasses_' . $klarna->getCountryCode(), $json_output, 12 * HOUR_IN_SECONDS );
-					return $json_output;
+					set_transient( 'klarna_pclasses_' . $klarna->getCountryCode(), $output, 12 * HOUR_IN_SECONDS );
+					return $output;
 				} else {
 					delete_transient( 'klarna_pclasses_' . $klarna->getCountryCode() );
 				}
 
-				return $json_output;
+				return $output;
 			} catch(Exception $e) {
 				throw new KlarnaException( $e->getMessage() );
 			}
@@ -136,8 +116,7 @@ class WC_Gateway_Klarna_PClasses {
 	 * @throws Klarna\XMLRPC\Exception\KlarnaException
 	 * @return void
 	 */
-	public function add_pclass($pclass)
-	{
+	public function add_pclass( $pclass ) {
 		if ( ! $pclass instanceof Klarna\XMLRPC\PClass ) {
 			throw new Klarna\XMLRPC\Exception\KlarnaException( 'pclass', 'KlarnaPClass' );
 		}
