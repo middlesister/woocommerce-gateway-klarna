@@ -82,17 +82,10 @@ class WC_Gateway_Klarna_PClasses {
 		$klarna = $this->klarna;
 
 		if ( $klarna->getPClasses() ) {
-			return $klarna->getAllPClasses();
+			$fetched_pclasses = $klarna->getPClasses();
+			return $klarna->getPClasses();
 		} else {
-			try {
-				// You can specify country (and language, currency if you wish) if you don't want 
-				// to use the configured country.
-				$klarna->fetchPClasses( $this->country );
-
-				return $klarna->getAllPClasses();
-			} catch ( Exception $e ) {
-				return false;
-			}
+			return false;
 		}
 	}
 

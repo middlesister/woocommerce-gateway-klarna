@@ -381,7 +381,7 @@ class WC_Klarna_Get_Address {
 			if ( $klarna_testmode == 'yes' ) {
 				// Disable SSL if in testmode
 				$klarna_ssl  = 'false';
-				$klarna_mode = Klarna::BETA;
+				$klarna_mode = Klarna\XMLRPC\Klarna::BETA;
 			} else {
 				// Set SSL if used in webshop
 				if ( is_ssl() ) {
@@ -389,10 +389,10 @@ class WC_Klarna_Get_Address {
 				} else {
 					$klarna_ssl = 'false';
 				}
-				$klarna_mode = Klarna::LIVE;
+				$klarna_mode = Klarna\XMLRPC\Klarna::LIVE;
 			}
 
-			$k = new Klarna();
+			$k = new Klarna\XMLRPC\Klarna();
 
 			$k->config( $klarna_eid,                                            // EID
 				$klarna_secret,                                        // Secret

@@ -46,7 +46,7 @@ class WC_Gateway_Klarna_Checkout extends WC_Gateway_Klarna {
 		if ( $this->testmode == 'yes' ) {
 			// Disable SSL if in testmode
 			$this->klarna_ssl  = 'false';
-			$this->klarna_mode = Klarna::BETA;
+			$this->klarna_mode = Klarna\XMLRPC\Klarna::BETA;
 		} else {
 			// Set SSL if used in webshop
 			if ( is_ssl() ) {
@@ -54,7 +54,7 @@ class WC_Gateway_Klarna_Checkout extends WC_Gateway_Klarna {
 			} else {
 				$this->klarna_ssl = 'false';
 			}
-			$this->klarna_mode = Klarna::LIVE;
+			$this->klarna_mode = Klarna\XMLRPC\Klarna::LIVE;
 		}
 
 		// Actions
@@ -1858,7 +1858,7 @@ class WC_Gateway_Klarna_Checkout extends WC_Gateway_Klarna {
 			if ( 'v2' == get_post_meta( $order->id, '_klarna_api', true ) ) {
 				$country = get_post_meta( $orderid, '_billing_country', true );
 
-				$klarna = new Klarna();
+				$klarna = new Klarna\XMLRPC\Klarna();
 				$this->configure_klarna( $klarna, $country );
 				$invNo = get_post_meta( $order->id, '_klarna_invoice_number', true );
 
