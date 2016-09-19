@@ -36,7 +36,7 @@ class WC_Gateway_Klarna_PClasses {
 	 * @return array $pclasses Key value array of countries and their PClasses
 	 */
 	function get_pclasses_for_country_and_type() {
-		$pclasses_country_all  = $this->pclasses;
+		$pclasses_country_all  = $this->fetch_pclasses();
 		$pclasses_country_type = array();
 		unset( $pclasses_country_type );
 
