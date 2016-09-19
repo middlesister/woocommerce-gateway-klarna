@@ -80,12 +80,14 @@ class WC_Gateway_Klarna_PClasses {
 	 */
 	function fetch_pclasses() {
 		$klarna = $this->klarna;
-		$klarna_pclasses = get_transient( 'klarna_pclasses' );
+		$klarna_pclasses = get_transient( 'klarna_pclasses_' . $klarna->getCountryCode() );
+
+		// $klarna->getCountryCode() = 'SE' (example)
 
 		if ( is_array( $klarna_pclasses ) ) {
 			return $klarna_pclasses;
-		} else if ( $klarna->getPClasses() ) {
-			$fetched_pclasses = $klarna->getPClasses();
+		} else if ( $klarna->getPClasses( $klarna->getCountryCode() ) ) {
+			$fetched_pclasses = $klarna->getPClasses( $klarna->getCountryCode() );
 			return $klarna->getPClasses();
 		} else {
 			return false;
