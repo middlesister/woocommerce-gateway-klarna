@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+use PhpXmlRpc\Helper\Charset;
 
 class WC_Gateway_Klarna_PClasses {
 
@@ -40,6 +41,7 @@ class WC_Gateway_Klarna_PClasses {
 		$pclasses_country_type = array();
 		unset( $pclasses_country_type );
 
+		$pclasses_country_all = json_decode( $pclasses_country_all );
 		if ( $pclasses_country_all ) {
 			foreach( $pclasses_country_all as $eid => $pclasses_country ) {
 				foreach ( $pclasses_country as $pclass ) {
@@ -81,16 +83,16 @@ class WC_Gateway_Klarna_PClasses {
 						if ( ! isset( $output[ $eid ])) {
 							$output[ $eid ] = array();
 						}
-						// $pclass_array = $pclass->toArray();
-						// Clean up description
-						/*
+						$pclass_array = $pclass->toArray();
+						// Clean up array values
 						foreach ( $pclass_array as $pclass_key => $pclass_value ) {
-							$pclass_array[ $pclass_key ] = mb_convert_encoding( $pclass_value, 'UTF-8' );
+							if ( $pclass_value ) {
+								$pclass_array[ $pclass_key ] = Charset::instance()->encodeEntities( $pclass_value, 'UTF-8', 'ISO-8859-1' );
+							}
 						}
-						*/
 
 
-						$output[$eid][] = $pclass;
+						$output[$eid][] = $pclass_array;
 					}
 				}
 
