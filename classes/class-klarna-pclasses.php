@@ -43,7 +43,7 @@ class WC_Gateway_Klarna_PClasses {
 		if ( $pclasses_country_all ) {
 			foreach( $pclasses_country_all as $eid => $pclasses_country ) {
 				foreach ( $pclasses_country as $pclass ) {
-					if ( in_array( $pclass->type, $this->type ) ) { // Passed from parent file
+					if ( in_array( $pclass->getType(), $this->type ) ) { // Passed from parent file
 						$pclasses_country_type[] = $pclass;
 					}
 				}
@@ -62,7 +62,8 @@ class WC_Gateway_Klarna_PClasses {
 	 */
 	function fetch_pclasses() {
 		$klarna = $this->klarna;
-		$klarna_pclasses = get_transient( 'klarna_pclasses_' . $klarna->getCountryCode() );
+		// 'wc_' prefix added to transient name
+		$klarna_pclasses = get_transient( 'wc_klarna_pclasses_' . $klarna->getCountryCode() );
 
 		if ( is_array( $klarna_pclasses ) ) {
 			return $klarna_pclasses;
@@ -76,30 +77,33 @@ class WC_Gateway_Klarna_PClasses {
 			try {
 				$output = array();
 				foreach ($this->pclasses as $eid => $pclasses) {
-					foreach ($pclasses as $pclass) {
-						if (!isset($output[$eid])) {
-							$output[$eid] = array();
+					foreach ( $pclasses as $pclass ) {
+						if ( ! isset( $output[ $eid ])) {
+							$output[ $eid ] = array();
 						}
-						$pclass_array = $pclass->toArray();
+						// $pclass_array = $pclass->toArray();
 						// Clean up description
+						/*
 						foreach ( $pclass_array as $pclass_key => $pclass_value ) {
 							$pclass_array[ $pclass_key ] = mb_convert_encoding( $pclass_value, 'UTF-8' );
 						}
+						*/
 
-						$output[$eid][] = $pclass_array;
+
+						$output[$eid][] = $pclass;
 					}
 				}
 
-				// $json_output = json_encode( $output );
+				$json_output = json_encode( $output );
 
 				if ( count( $this->pclasses ) > 0 ) {
-					set_transient( 'klarna_pclasses_' . $klarna->getCountryCode(), $output, 12 * HOUR_IN_SECONDS );
-					return $output;
+					set_transient( 'klarna_pclasses_' . $klarna->getCountryCode(), $json_output, 12 * HOUR_IN_SECONDS );
+					return $json_output;
 				} else {
 					delete_transient( 'klarna_pclasses_' . $klarna->getCountryCode() );
 				}
 
-				return $output;
+				return $json_output;
 			} catch(Exception $e) {
 				throw new KlarnaException( $e->getMessage() );
 			}
