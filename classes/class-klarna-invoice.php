@@ -540,9 +540,7 @@ class WC_Gateway_Klarna_Invoice extends WC_Gateway_Klarna {
 			$country,                                                // Country
 			$this->klarna_helper->get_klarna_language( $country ),   // Language
 			$this->selected_currency,                                // Currency
-			$this->klarna_mode,                                      // Live or test
-			$pcStorage = 'jsondb',                                   // PClass storage
-			$pcURI = 'klarna_pclasses_' . $country                   // PClass storage URI path
+			$this->klarna_mode                                       // Live or test
 		);
 	}
 

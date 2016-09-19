@@ -80,8 +80,11 @@ class WC_Gateway_Klarna_PClasses {
 	 */
 	function fetch_pclasses() {
 		$klarna = $this->klarna;
+		$klarna_pclasses = get_transient( 'klarna_pclasses' );
 
-		if ( $klarna->getPClasses() ) {
+		if ( is_array( $klarna_pclasses ) ) {
+			return $klarna_pclasses;
+		} else if ( $klarna->getPClasses() ) {
 			$fetched_pclasses = $klarna->getPClasses();
 			return $klarna->getPClasses();
 		} else {

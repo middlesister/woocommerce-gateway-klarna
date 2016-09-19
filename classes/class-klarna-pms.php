@@ -59,7 +59,7 @@ class WC_Klarna_PMS {
 		$eid, $secret, $selected_currency, $shop_country, $cart_total, $payment_method_group, $select_id, $mode, $invoice_fee = false
 	) {
 		$klarna = new Klarna\XMLRPC\Klarna();
-		$config = new KlarnaConfig();
+		$config = new Klarna\XMLRPC\Config();
 
 		// Default required options
 		if ( $mode == 'test' ) {
@@ -81,8 +81,6 @@ class WC_Klarna_PMS {
 		$config['mode']                 = $klarna_mode;
 		$config['ssl']                  = $klarna_ssl;
 		$config['checkout_service_uri'] = $klarna_endpoint;
-		$config['pcStorage']            = 'json';
-		$config['pcURI']                = './pclasses.json';
 		$config['eid']                  = $eid;
 		$config['secret']               = $secret;
 
